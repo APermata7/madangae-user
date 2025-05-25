@@ -1,12 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Home</title>
-    <link rel="stylesheet" href="/css/style.css"> <!-- Arahkan ke file CSS -->
-</head>
-<body>
-
+<?php
+session_start();
+?>
 <div class="container">
     <h2>Selamat datang, <?= htmlspecialchars($_SESSION['username']); ?>!</h2>
     <i>Remaja kos hari ini, mau masak apa?</i>
@@ -39,8 +33,3 @@
     <br><i>Jika menu belum lengkap, catat di sini:</i><br><br>
     <a href="?c=MenuController&m=createMenu">Tambah Item Baru</a>
 </div>
-
-</body>
-</html>
-
-
