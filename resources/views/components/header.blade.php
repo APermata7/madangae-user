@@ -10,22 +10,24 @@
 <body>
 
 <div class='nav'>
-<a href='index.php?c=MenuController&m=home'>Home</a>
+<a href="{{ route('home') }}">Home</a>
 
-<?php if (isset($_SESSION['username'])) { ?>
-        <div class='dropdown'>
-            <a href='#'>List Menu</a>
-            <ul>
-                <li><a href='index.php?c=MenuController&m=listMenus&id_kategori=1'>Lauk Pauk</a></li>
-                <li><a href='index.php?c=MenuController&m=listMenus&id_kategori=2'>Sayur</a></li>
-            </ul>
-        </div>
-        <!-- Logout (hanya saat session isset) -->
-        <a href='index.php?c=UserController&m=logoutUser'>Logout</a>
-    <?php } else { ?>
-        <!-- Login and Register (hanya saat session unset) -->
-        <a href='index.php?c=UserController&m=loginUser'>Login</a>
-        <a href='index.php?c=UserController&m=registerUser'>Register</a>
-    <?php } ?>
-    
+@auth
+    <div class="dropdown">
+        <a href="#">List Menu</a>
+        <ul>
+            <li><a href="{{ route('menus.category', ['id' => 1]) }}">Lauk Pauk</a></li>
+            <li><a href="{{ route('menus.category', ['id' => 2]) }}">Sayur</a></li>
+        </ul>
+    </div>
+    <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+        @csrf
+        <button type="submit">Logout</button>
+                <!-- Logout (hanya saat session isset) -->
+    </form>
+@else
+    <a href="{{ route('login.form') }}">Login</a>
+    <a href="{{ route('register.form') }}">Register</a>
+            <!-- Login and Register (hanya saat session unset) -->
+@endauth
 </div>

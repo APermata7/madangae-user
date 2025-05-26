@@ -15,7 +15,7 @@ $response->send();
 
 $kernel->terminate($request, $response);
 ?>
-
+<!-- 
 //kedua
 // // Membuat koneksi database
 // $dbConnection = new mysqli("localhost", "root", "", "resepkos");
@@ -159,4 +159,4 @@ $kernel->terminate($request, $response);
 //         echo "Method yang tersedia: " . implode(', ', get_class_methods($controller));
 //     }
 // }
-//
+// -->

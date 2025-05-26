@@ -1,18 +1,18 @@
 <div class="container">
-    <h2>Daftar Menu <?php echo htmlspecialchars($kategori_nama); ?></h2>
+    <h2>Daftar Menu {{ $kategori_nama }}</h2>
     <ul>
-        <?php
-        if (count($menus) > 0) {
-            foreach ($menus as $menu) {
-                echo "<li>";
-                echo "<img src='" . $menu["gambar"] . "' alt='" . $menu["nama_menu"] . "' width='150'>";
-                echo "<br><a href='index.php?c=MenuController&m=viewMenuDetail&id_menu=" . $menu["id"] . "&id_kategori=$id_kategori" . "'>" 
-                    . $menu["nama_menu"] . "</a>";
-                echo "</li>";
-            }
-        } else {
-            echo "<li>Menu untuk kategori " . htmlspecialchars($kategori_nama) . " belum tersedia.</li>";
-        }
-        ?>
+        @if(count($menus) > 0)
+            @foreach($menus as $menu)
+                <li>
+                    <img src="{{ asset($menu->gambar) }}" alt="{{ $menu->nama_menu }}" width="150">
+                    <br>
+                    <a href="{{ route('menus.detail', ['id' => $menu->id]) }}">
+                        {{ $menu->nama_menu }}
+                    </a>
+                </li>
+            @endforeach
+        @else
+            <li>Menu untuk kategori {{ $kategori_nama }} belum tersedia.</li>
+        @endif
     </ul>
 </div>
