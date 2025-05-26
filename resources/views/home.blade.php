@@ -1,13 +1,15 @@
 <?php
-session_start();
+if (!isset($_SESSION)) {
+    session_start();
+}
 ?>
 <div class="container">
     <h2>Selamat datang, <?= htmlspecialchars($_SESSION['username']); ?>!</h2>
     <i>Remaja kos hari ini, mau masak apa?</i>
     <p>Silakan pilih menu di bawah:</p>
     <ul>
-        <li><a href="?c=MenuController&m=listMenus&id_kategori=1">Menu Lauk Pauk</a></li>
-        <li><a href="?c=MenuController&m=listMenus&id_kategori=2">Menu Sayur</a></li>
+        <li><a href="{{ route('menus.category', ['id' => 1]) }}">Menu Lauk Pauk</a></li>
+        <li><a href="{{ route('menus.category', ['id' => 2]) }}">Menu Sayur</a></li>
     </ul>
 </div>
 
@@ -20,9 +22,13 @@ session_start();
             <?php foreach ($menus as $menu): ?>
                 <li>
                     <?= htmlspecialchars($menu['nama_menu']); ?>
-                    --> <a href="?c=MenuController&m=updateMenu&id=<?= $menu['id']; ?>">Update</a>
-                    \ \ <a href="?c=MenuController&m=deleteMenu&id=<?= $menu['id']; ?>" onclick="return confirm('Apakah Anda yakin ingin menghapus item ini?');">Delete</a>
-                    \ \ <a href="?c=MenuController&m=viewMenuDetail&id_menu=<?= $menu['id']; ?>">Detail</a>
+                    <a href="{{ route('menus.edit', ['id' => $menu->id]) }}">Update</a>
+                    <form action="{{ route('menus.delete', ['id' => $menu->id]) }}" method="POST" style="display:inline;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus item ini?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit">Delete</button>
+                    </form>
+                    <a href="{{ route('menus.detail', ['id' => $menu->id]) }}">Detail</a>
                 </li>
             <?php endforeach; ?>
         </ul>

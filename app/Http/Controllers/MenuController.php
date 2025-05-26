@@ -1,175 +1,117 @@
 <?php
+namespace App\Http\Controllers;  // <== ini wajib
 
-use App\Http\Controllers\Controller;
-include_once 'models/MenuModel.class.php';
-include 'header.php';
+use Illuminate\Http\Request;
+use App\Models\Menu;
+use App\Models\Kategori;
+use Illuminate\Support\Facades\Session;
 
-class MenuController extends Controller {
-    private $model;
+class MenuController extends Controller
+{
+    public function home()
+    {
+        if (!Session::has('username')) {
+            return redirect()->route('login');
+        }
 
-    public function __construct($dbConnection) {
-        // Inisialisasi model dengan koneksi database        $this->model = new MenuModel($dbConnection);
+        $menus = Menu::all();
+        return view('home', compact('menus'));
     }
 
-    public function home() {
-        if (!isset($_SESSION['username'])) {
-            header("Location: index.php?c=UserController&m=loginUser");
-            exit;
+    public function listMenus(Request $request)
+    {
+        if (!Session::has('username')) {
+            return redirect()->route('login');
         }
-        // Ambil semua menu untuk ditampilkan di halaman utama
-        $menus = $this->model->getAllMenus();
-    
-        // Tampilkan view home
-        include 'views/home.php';
-    }    
 
-    public function listMenus() {
-        if (!isset($_SESSION['username'])) {
-            header("Location: index.php?c=UserController&m=loginUser");
-            exit;
-        }
-        $id_kategori = isset($_GET['id_kategori']) ? $_GET['id_kategori'] : 1;
+        $id_kategori = $request->input('id_kategori', 1);
+        $kategori = Kategori::find($id_kategori);
+        $menus = Menu::where('id_kategori', $id_kategori)->get();
 
-        // Mengambil nama kategori
-        $kategori_nama = $this->model->getKategoriNama($id_kategori);
-        
-        // Mengambil semua menu berdasarkan kategori
-        $menus = $this->model->getAllMenus($id_kategori);
-
-        // Memasukkan data ke view
-        include 'views/menu/list.php';
+        return view('menu.list', [
+            'menus' => $menus,
+            'kategori_nama' => $kategori->nama_kategori ?? 'Kategori Tidak Ditemukan',
+            'id_kategori' => $id_kategori
+        ]);
     }
-    
 
-    public function viewMenuDetail() {
-        // Validasi parameter
-        if (!isset($_GET['id_menu']) || empty($_GET['id_menu'])) {
-            die("ID Menu tidak ditemukan.");
-        }
-    
-        // Ambil id_menu dari GET
-        $id_menu = intval($_GET['id_menu']); 
-        $menu = $this->model->getMenuById($id_menu);
-    
+    public function viewMenuDetail($id)
+    {
+        $menu = Menu::find($id);
+
         if (!$menu) {
-            echo "Menu atau Kategori tidak ditemukan.";
-            return;
+            return abort(404, 'Menu tidak ditemukan.');
         }
-    
-        // Tampilkan view jika menu ditemukan
-        include 'views/menu/detail.php';
+
+        return view('menu.detail', compact('menu'));
     }
 
-    public function createMenu() {
-        if ($_SERVER["REQUEST_METHOD"] == "POST") {
-            $nama_menu = $_POST['nama_menu'];
-            $bahan = $_POST['bahan'];
-            $resep = $_POST['resep'];
-            $id_kategori = $_POST['id_kategori'];
-    
-            // unggahan file
-            $target_file = '';
-            if (isset($_FILES["gambar"]) && $_FILES["gambar"]["error"] == UPLOAD_ERR_OK) {
-                $allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
-                $maxSize = 2 * 1024 * 1024; // 2MB
-                
-                $fileType = mime_content_type($_FILES["gambar"]["tmp_name"]);
-                $fileSize = $_FILES["gambar"]["size"];
-                
-                if (!in_array($fileType, $allowedTypes)) {
-                    die("File yang diunggah harus berupa PNG atau JPEG.");
-                }
-                
-                if ($fileSize > $maxSize) {
-                    die("Ukuran file tidak boleh lebih dari 2MB.");
-                }
-    
-                $target_dir = "uploads/";
-                $target_file = $target_dir . basename($_FILES["gambar"]["name"]);
-                move_uploaded_file($_FILES["gambar"]["tmp_name"], $target_file);
-            }
-    
-            $result = $this->model->insertMenu($nama_menu, $bahan, $resep, $target_file, $id_kategori);
-            if ($result) {
-                header("Location: index.php?c=MenuController&m=listMenus&id_kategori=$id_kategori");
-                exit;
-            } else {
-                echo "Gagal menambahkan menu.";
-            }
-        } else {
-            // Ambil daftar kategori
-            $kategori_result = $this->model->getAllCategories();
-            include 'views/menu/insert.php'; 
-            // Tampilkan form untuk membuat menu
-        }
+    public function createMenu()
+    {
+        $kategori_result = Kategori::all();
+        return view('menu.insert', compact('kategori_result'));
     }
-    
-    public function updateMenu() {
-        // Validasi ID menu dari GET parameter
-        if (!isset($_GET['id']) || empty($_GET['id'])) {
-            die("ID menu tidak ditemukan.");
-        }
-        $id = intval($_GET['id']);
-    
-        if ($_SERVER["REQUEST_METHOD"] == "POST") {
-            // Ambil data dari POST
-            $nama_menu = $_POST['nama_menu'];
-            $bahan = $_POST['bahan'];
-            $resep = $_POST['resep'];
-            $id_kategori = $_POST['id_kategori'];
-    
-            //unggahan file
-            $target_file = $_POST['existing_gambar']; // Default: gambar lama
-            if (isset($_FILES["gambar"]) && $_FILES["gambar"]["error"] == UPLOAD_ERR_OK) {
-                $target_dir = "uploads/";
-                $target_file = $target_dir . basename($_FILES["gambar"]["name"]);
-                move_uploaded_file($_FILES["gambar"]["tmp_name"], $target_file);
-            }
-    
-            // Update data di database
-            $result = $this->model->updateMenu($id, $nama_menu, $bahan, $resep, $target_file, $id_kategori);
-            if ($result) {
-                header("Location: index.php?c=MenuController&m=listMenus&id_kategori=$id_kategori");
-                exit;
-            } else {
-                echo "Gagal mengupdate menu.";
-            }
-        } else {
-            // Ambil data menu untuk ditampilkan di form
-            $menu = $this->model->getMenuById($id);
-            if (!$menu) {
-                die("Menu tidak ditemukan.");
-            }
-    
-            // Ambil daftar kategori untuk dropdown
-            $kategori_result = $this->model->getAllCategories();
-            include 'views/menu/update.php';
-        }
-    }
-    
-    
 
-    public function deleteMenu() {
-        //Periksa apakah 'id' dilewatkan dalam string kueri
-        if (!isset($_GET['id']) || empty($_GET['id'])) {
-            die("ID menu tidak ditemukan.");
-        }
-    
-        // 'id' dari parameter GET
-        $id = intval($_GET['id']); // Konversikan ke bilangan bulat 
+    public function storeMenu(Request $request)
+    {
+        $request->validate([
+            'nama_menu' => 'required|string',
+            'bahan' => 'required|string',
+            'resep' => 'required|string',
+            'gambar' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'id_kategori' => 'required|integer'
+        ]);
 
-        // Memanggil model untuk menghapus menu berdasarkan ID
-        $result = $this->model->deleteMenu($id);
-    
-        if ($result) {
-            header("Location: index.php?c=MenuController&m=listMenus");
-            exit;
-        } else {
-            echo "Gagal menghapus menu.";
+        $gambar = '';
+        if ($request->hasFile('gambar')) {
+            $gambar = $request->file('gambar')->store('uploads', 'public');
         }
+
+        Menu::create([
+            'nama_menu' => $request->nama_menu,
+            'bahan' => $request->bahan,
+            'resep' => $request->resep,
+            'gambar' => $gambar,
+            'id_kategori' => $request->id_kategori
+        ]);
+
+        return redirect()->route('menus.list', ['id_kategori' => $request->id_kategori]);
     }
-    
+
+    public function editMenu($id)
+    {
+        $menu = Menu::findOrFail($id);
+        $kategori_result = Kategori::all();
+
+        return view('menu.update', compact('menu', 'kategori_result'));
+    }
+
+    public function updateMenu(Request $request, $id)
+    {
+        $menu = Menu::findOrFail($id);
+
+        $gambar = $menu->gambar;
+
+        if ($request->hasFile('gambar')) {
+            $gambar = $request->file('gambar')->store('uploads', 'public');
+        }
+
+        $menu->update([
+            'nama_menu' => $request->nama_menu,
+            'bahan' => $request->bahan,
+            'resep' => $request->resep,
+            'gambar' => $gambar,
+            'id_kategori' => $request->id_kategori
+        ]);
+
+        return redirect()->route('menus.list', ['id_kategori' => $request->id_kategori]);
+    }
+
+    public function deleteMenu($id)
+    {
+        $menu = Menu::findOrFail($id);
+        $menu->delete();
+
+        return redirect()->route('menus.list');
+    }
 }
-
-include 'footer.php';
-?>

@@ -1,6 +1,7 @@
 <div class="container">
     <h2>Register</h2>
-    <form method="post" action="index.php?c=UserController&m=registerUser"> <!-- Mengarah ke controller dan method yang benar -->
+    <form method="POST" action="{{ route('register.submit') }}">
+        @csrf
         <label for="username">Username:</label>
         <input type="text" name="username" required><br>
 
