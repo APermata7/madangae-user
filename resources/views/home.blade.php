@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (!isset($_SESSION)) {
+    session_start();
+}
 ?>
 <div class="container">
     <h2>Selamat datang, <?= htmlspecialchars($_SESSION['username']); ?>!</h2>

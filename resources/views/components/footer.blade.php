@@ -1,3 +1,8 @@
+<?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <div class="footer">
     <p>© 2024 by Bella. All rights reserved.</p>
 </div>
