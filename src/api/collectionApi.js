@@ -33,6 +33,9 @@ export const addMenuItemToCollection = async (userId, menuItemId, token) => {
         if (!response.ok) {
             throw new Error(data.message || 'Failed to add item to collection');
         }
+        // Trigger a custom event to refresh collections
+        window.dispatchEvent(new CustomEvent('collectionsUpdated'));
+
         return data;
     } catch (error) {
         console.error('Error adding item to collection:', error);
@@ -40,18 +43,31 @@ export const addMenuItemToCollection = async (userId, menuItemId, token) => {
     }
 };
 
-export const removeMenuItemFromCollection = async (userId, collectionItemId, token) => {
-    try {
-        const response = await fetch(`${API_BASE_URL}/users/${userId}/collections/${collectionItemId}`, {
+//
+export const removeMenuItemFromCollection = async (userId, menuItemId, token) => {
+       try {
+        console.log('Removing menu item:', { userId, menuItemId });
+        
+        const response = await fetch(`${API_BASE_URL}/users/${userId}/collections/${menuItemId}`, {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
             }
         });
-        const data = await await response.json();
+        
+        const data = await response.json();
+        
         if (!response.ok) {
+            console.error('Remove failed:', data);
             throw new Error(data.message || 'Failed to remove item from collection');
         }
+        
+        console.log('Remove success:', data);
+        
+        // Trigger refresh
+        window.dispatchEvent(new CustomEvent('collectionsUpdated'));
+        
         return data;
     } catch (error) {
         console.error('Error removing item from collection:', error);

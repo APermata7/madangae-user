@@ -16,12 +16,6 @@ const CollectionPage = () => {
   const { isAuthenticated, currentUser, getToken } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login'); // Redirect to login if not authenticated
-      return;
-    }
-
     const fetchCollections = async () => {
       setLoading(true);
       setError(null);
@@ -43,7 +37,26 @@ const CollectionPage = () => {
       }
     };
 
+    useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login'); // Redirect to login if not authenticated
+      return;
+    }
+
     fetchCollections();
+
+    // Update Listen for collections updates
+    const handleCollectionsUpdate = () => {
+      console.log('Collections updated, refreshing data...');
+      fetchCollections();
+    };
+
+    window.addEventListener('collectionsUpdated', handleCollectionsUpdate);
+
+    //and Cleanup listener
+    return () => {
+      window.removeEventListener('collectionsUpdated', handleCollectionsUpdate);
+    };
   }, [isAuthenticated, currentUser, getToken, navigate]);
 
   const handleRemoveFromCollection = async (collectionItemId) => {
@@ -99,7 +112,10 @@ const CollectionPage = () => {
 
       <div style={collectionListStyle}>
         {collections.map(item => (
-          <CollectionItemCard key={item._id} item={item} onRemoveFromCollection={handleRemoveFromCollection} />
+          <CollectionItemCard 
+          key={item._id} 
+          item={item} 
+          onRemoveFromCollection={handleRemoveFromCollection} />
         ))}
       </div>
     </div>
