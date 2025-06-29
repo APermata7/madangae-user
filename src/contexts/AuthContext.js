@@ -1,14 +1,9 @@
-// src/contexts/AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { loginUser as apiLoginUser, signupUser as apiSignupUser } from '../api/authApi';
 
-// Create a context for authentication
 const AuthContext = createContext(null);
 
-// Custom hook to use the AuthContext
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -26,8 +21,8 @@ export const AuthProvider = ({ children }) => {
         setCurrentUser(user);
         setIsAuthenticated(true);
       } catch (error) {
-        console.error("Failed to parse stored user:", error);
-        logout(); // Clear invalid stored data
+        console.error('Failed to parse stored user:', error);
+        logout(); // clear invalid stored data
       }
     }
     setLoadingAuth(false);
@@ -51,11 +46,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signup = async (username, email, password) => {
+  const signup = async (username, name, email, password) => {
     setLoadingAuth(true);
     setAuthError(null);
     try {
-      const { user, token } = await apiSignupUser(username, email, password);
+      const { user, token } = await apiSignupUser(username, name, email, password);
       setCurrentUser(user);
       setIsAuthenticated(true);
       localStorage.setItem('currentUser', JSON.stringify(user));
