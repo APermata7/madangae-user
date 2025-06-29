@@ -6,7 +6,7 @@ const HomePage = () => {
     textAlign: 'center',
     padding: '50px 20px',
     backgroundColor: '#e9ecef',
-    minHeight: 'calc(100vh - 60px)', /* Assuming Navbar is 60px */
+    minHeight: 'calc(100vh - 60px)', 
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',

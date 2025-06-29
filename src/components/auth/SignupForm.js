@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 const SignupForm = ({ onSignup, loading, error }) => {
   const [username, setUsername] = useState('');
-  const [name, setName] = useState(''); // <-- Tambah state
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 

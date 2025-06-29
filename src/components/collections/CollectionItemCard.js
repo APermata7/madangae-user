@@ -66,8 +66,6 @@ const CollectionItemCard = ({ item, onRemoveFromCollection }) => {
   console.log('Rating:', displayRating);
   console.log('=== END DEBUG ===');
 
-  // ... keep existing code (all the style definitions)
-
   const cardStyle = {
     border: '1px solid #ddd',
     borderRadius: '8px',
