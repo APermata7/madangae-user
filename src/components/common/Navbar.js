@@ -18,17 +18,32 @@ const Navbar = () => {
   const linkStyles = {
     color: 'white',
     textDecoration: 'none',
-    margin: '0 10px',
   };
 
   const buttonStyles = {
-    backgroundColor: '#007bff',
+    backgroundColor: 'rgba(255,255,255,0.1)',
     color: 'white',
     padding: '8px 12px',
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',
-    marginLeft: '10px',
+    margin: '0 5px',
+    textDecoration: 'none',
+    display: 'inline-block',
+    transition: 'background-color 0.2s',
+  };
+
+  const greetingStyles = {
+    color: 'white',
+    fontSize: '1.1em',
+    fontWeight: '500',
+    margin: '0 20px',
+  };
+
+  const rightSectionStyles = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
   };
 
   return (
@@ -36,20 +51,38 @@ const Navbar = () => {
       <div style={{ fontSize: '1.5em', fontWeight: 'bold' }}>
         <Link to="/" style={linkStyles}>Madangae</Link>
       </div>
-      <div>
-        <Link to="/menu" style={linkStyles}>Menu</Link>
+
+      <div style={rightSectionStyles}>
+        {isAuthenticated && (
+          <div style={greetingStyles}>
+            Hello, {currentUser?.username || 'User'}!
+          </div>
+        )}
         {isAuthenticated && (
           <>
-            <Link to="/collections" style={linkStyles}>My Collections</Link>
-            <Link to="/profile" style={linkStyles}>Profile</Link>
-            <span>Hello, {currentUser?.username || 'User'}!</span>
-            <button onClick={logout} style={buttonStyles}>Logout</button>
+            <Link to="/menu" style={buttonStyles}>
+              Menu
+            </Link>
+            <Link to="/collections" style={buttonStyles}>
+              My Collections
+            </Link>
+            <Link to="/profile" style={buttonStyles}>
+              Profile
+            </Link>
+            <button 
+              onClick={logout} 
+              style={{
+                ...buttonStyles,
+                backgroundColor: '#dc3545'
+              }}>
+              Logout
+            </button>
           </>
         )}
         {!isAuthenticated && (
           <>
-            <Link to="/login" style={linkStyles}>Login</Link>
-            <Link to="/signup" style={linkStyles}>Sign Up</Link>
+            <Link to="/login" style={buttonStyles}>Login</Link>
+            <Link to="/signup" style={buttonStyles}>Sign Up</Link>
           </>
         )}
       </div>
